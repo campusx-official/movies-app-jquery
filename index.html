@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Movie App</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<script
+  src="https://code.jquery.com/jquery-3.6.0.js"
+  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+  crossorigin="anonymous"></script>
+
+</head>
+<script type="text/javascript">
+
+	var page_no=1;
+	fetch_data(page_no);
+	
+
+	$(document).ready(function(){
+		$('#next').click(function(){
+			page_no = Number(page_no) + 1;
+			fetch_data(page_no);
+			//alert(page_no);
+		})
+	})
+
+	function fetch_data(page_no){
+		$.ajax({
+		url:'https://api.themoviedb.org/3/movie/top_rated?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US&page=' + page_no,
+		method: 'GET',
+		success:function(data){
+
+			console.log(data);
+
+			page_no = data.page;
+			var movies = data.results;
+
+			for(var i=0; i<movies.length; i++){
+				var poster_path = 'https://image.tmdb.org/t/p/w500/' + movies[i].poster_path;
+				// display
+				$('#display').append('<div class="col-md-2 mt-5"><a href="details.html?id=' + movies[i].id +'"><div class="card"><img src="'+ poster_path +'" class="card-img-top"><p class="p-2"><b>'+ movies[i].title +'</b><br><span class="text-muted">'+ movies[i].release_date +'</span></p></div></a></div>')
+			}
+		},
+		error:function(error){
+			console.log(error);
+		}
+	})
+	}
+</script>
+<style type="text/css">
+	.bg-nav{
+		background-color: #032541;
+	}
+	.container{
+		max-width: 1300px;
+	}
+	#page-nav{
+		max-width: 200px;
+		margin: auto;
+	}
+	#page-nav button{
+		cursor: pointer;
+	}
+	#page-nav button:hover{
+		background-color: #487eb0;
+	}
+</style>
+<body>
+
+	<div class="navbar bg-nav">
+		<h2 class="text-white">MovieApp</h2>
+	</div>
+
+	<div class="jumbotron">
+		<h1 class="display-1">Welcome.</h1>
+		<h1 class="display-4">Millions of movies, TV shows and people to discover. Explore now.</h1>
+
+		<div class="row">
+			<div class="col-md-10">
+				<input type="text" class="form-control form-control-lg mt-4" name="">	
+			</div>
+			<div class="col-md-2">
+				<button class="btn bg-nav btn-lg text-white mt-3">Search Movies</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<h1>Top Movies</h1>
+		<div class="row mt-5" id="display">
+			
+		</div>
+		<div id="page-nav" class="mt-5 mb-5">
+			<button class="btn bg-nav btn-lg text-white" id="next">Load More</button>
+		</div>
+	</div>
+
+</body>
+</html>

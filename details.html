@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Movie details</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+	<script
+  src="https://code.jquery.com/jquery-3.6.0.js"
+  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+  crossorigin="anonymous"></script>
+</head>
+<script type="text/javascript">
+	$(document).ready(function(){
+		var url_string = window.location.href;
+		var url = new URL(url_string);
+
+		var movie_id = url.searchParams.get("id");
+
+		// hit the api and fetch the data for a particular movie
+		/*
+			1. movie posters
+			2. movie details
+			3. overview
+			4. director
+			5. actors
+			6. reviews
+			7. recommendations
+		*/
+		$.ajax({
+			url: 'https://api.themoviedb.org/3/movie/' + movie_id +'?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US',
+			method: 'GET',
+			success:function(data){
+				//movie details
+				var img_path = data.poster_path;
+				//console.log(data);
+				$('#poster').html('<img src="https://image.tmdb.org/t/p/w500//' + img_path +'" style="width: 100%;height: 350px">');
+				//name
+				$('#movie_name').html(data.title);
+				//release data
+				$('#release_date').html(data.release_date);
+				// genre
+				var genres="";
+				for(var i=0;i<data.genres.length;i++){
+					genres = genres + data.genres[i].name + " ";
+				}
+				$('#genres').html(genres);
+				//runtime
+				$('#runtime').html(data.runtime + " mins");
+				//rating
+				$('#rating').html(data.vote_average);
+				// overview
+				$('#overview').html(data.overview);
+				// hit the credits api
+				$.ajax({
+					url:'https://api.themoviedb.org/3/movie/'+ movie_id +'/credits?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US',
+					method:'GET',
+					success:function(data){
+						for(var i=0; i<data.crew.length;i++){
+							if(data.crew[i].job === 'Director'){
+								$('#director').html(data.crew[i].name);
+							}
+						}
+
+						for(var i=0;i<6;i++){
+							$('#starcast').append('<div class="col-md-2 mt-3"><div class="card"><img src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/'+ data.cast[i].profile_path +'" class="card-img-top"><div class="card-body"><h5>' + data.cast[i].name+'</h5></div></div></div>')
+						}
+
+						//hit another api
+						https://www.themoviedb.org/t/p/w250_and_h141_face/4kIRrW1AlHP5Idne8CPHeQt8nR5.jpg
+						$.ajax({
+							url: 'https://api.themoviedb.org/3/movie/'+ movie_id+'/recommendations?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US&page=1',
+							method:'GET',
+							success:function(data){
+								for(var i=0;i<3;i++){
+									$('#recommendations').append('<div class="col-md-4 mt-3"><a href="details.html?id=' + data.results[i].id +'"><div class="card"><img src="https://www.themoviedb.org/t/p/w250_and_h141_face/'+ data.results[i].poster_path +'" class="card-img-top"><div class="card-body"><h5>' + data.results[i].title+'</h5></div></div></a></div>')
+						}
+							},
+							error:function(error){
+								console.log(error)
+							}
+						})
+					},
+					error:function(error){
+
+					}
+				})
+
+			},
+			error:function(error){
+				console.log(error);
+			}
+		})
+	})
+</script>
+<style type="text/css">
+	.bg-nav{
+		background-color: #032541;
+	}
+</style>
+<body>
+
+	<div class="navbar bg-nav">
+		<h2 class="text-white"><a class="text-white" href="index.html">MovieApp</a></h2>
+	</div>
+
+	<div class="jumbotron">
+		<div class="row">
+			<div class="col-md-2">
+				<div id="poster">
+					
+				</div>
+			</div>
+			<div class="col-md-10">
+				<h1 class="diaplay-2" id="movie_name"></h1>
+				<p class="lead"><span id="release_date" class="mr-3"> </span><span id="genres">
+</span><span id="runtime"></span></p>
+				<h3>User Rating - <span id="rating"></span></h3>
+				<h4 class="mt-5">Overview</h4>
+				<p id="overview"></p>
+
+				<h5>Director</h5>
+				<p class="lead" id="director"></p>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<h1>Starcast</h1>
+		<div class="row" id="starcast">
+			
+		</div>
+
+		<div class="row mt-5">
+			<h1>Recommendations</h1>
+		</div>
+
+		<div class="row mt-5 mb-5" id="recommendations">
+			
+		</div>
+	</div>
+
+</body>
+</html>
